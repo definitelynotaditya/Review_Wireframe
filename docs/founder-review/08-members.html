@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S12 · Members / Guests + CSV Import</title>
+<style>
+  :root{
+    --ink:#1f2328;--ink-soft:#4a5058;--muted:#868d95;--faint:#a7adb4;
+    --line:#d3d8dd;--line-soft:#e6e9ed;--paper:#fff;--surface:#f6f7f9;--surface-2:#eceef1;
+    --fill:#e0e3e7;--dark:#2b2f36;--r:6px;--r-lg:8px;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:var(--sans);color:var(--ink);background:var(--surface);line-height:1.45;-webkit-font-smoothing:antialiased;font-size:14px}
+  .app{display:grid;grid-template-columns:232px 1fr;height:100vh;min-height:640px}
+  .sidebar{background:var(--paper);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:16px 12px}
+  .s-brand{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);padding:6px 10px 2px}
+  .s-brand small{display:block;font-size:10px;letter-spacing:.12em;color:var(--faint);margin-top:3px}
+  .nav{margin-top:18px;display:flex;flex-direction:column;gap:1px;flex:1}
+  .nav a{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink-soft);font-size:13.5px;padding:8px 10px;border-radius:var(--r);border-left:2px solid transparent}
+  .nav a .i{width:15px;text-align:center;color:var(--faint);font-size:13px}
+  .nav a.active{background:var(--surface-2);color:var(--ink);font-weight:600;border-left-color:var(--dark)}
+  .nav a.active .i{color:var(--ink)}
+  .s-profile{border-top:1px solid var(--line-soft);padding:12px 10px 4px;display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--ink-soft)}
+  .avatar{width:26px;height:26px;border-radius:100px;background:var(--fill);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink-soft)}
+  .s-profile .lo{margin-left:auto;color:var(--faint)}
+  .main{display:flex;flex-direction:column;min-width:0;height:100vh}
+  .topbar{height:60px;flex:none;border-bottom:1px solid var(--line);background:var(--paper);display:flex;align-items:center;padding:0 22px;gap:16px}
+  .tb-title{font-size:17px;font-weight:600}.tb-sub{font-size:12.5px;color:var(--muted);margin-top:1px}
+  .tb-right{margin-left:auto;display:flex;align-items:center;gap:14px;color:var(--muted)}
+  .icon-btn{position:relative;width:30px;height:30px;border:1px solid var(--line);border-radius:var(--r);background:var(--paper);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--ink-soft)}
+  .dot{position:absolute;top:-6px;right:-6px;min-width:16px;height:16px;background:var(--dark);color:#fff;border-radius:100px;font-size:10px;display:flex;align-items:center;justify-content:center;padding:0 4px;font-family:var(--mono)}
+  .content{flex:1;overflow:hidden;position:relative}
+  .list{padding:18px 22px;filter:grayscale(1);opacity:.55;height:100%;overflow:hidden}
+  .actionbar{display:flex;align-items:center;gap:12px;margin-bottom:12px}
+  .search{flex:1;max-width:320px;border:1px solid var(--line);border-radius:var(--r);background:var(--paper);padding:8px 11px;color:var(--muted);font-size:13px}
+  .btn{font-size:12.5px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:var(--r);padding:7px 13px;white-space:nowrap}
+  .btn.primary{background:var(--dark);color:#fff;border-color:var(--dark);font-weight:500}
+  .tab{font-size:12.5px;color:var(--ink-soft);border:1px solid var(--line);border-radius:100px;padding:4px 11px;background:var(--paper)}
+  .tab.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+  .badge{font-family:var(--mono);font-size:10.5px;border:1px solid var(--line);border-radius:4px;padding:2px 7px;color:var(--ink-soft);background:var(--surface)}
+  .mrow{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:12px 16px;margin-bottom:9px;display:flex;align-items:center;gap:14px;font-size:13.5px}
+  .mrow .mid{font-family:var(--mono);color:var(--ink-soft)}.mrow .nm{font-weight:600}
+  .mrow .r{margin-left:auto;display:flex;align-items:center;gap:8px;color:var(--muted)}
+  .ic{width:26px;height:26px;border:1px solid var(--line);border-radius:var(--r);display:flex;align-items:center;justify-content:center;font-size:12px;background:var(--paper)}
+  .scrim{position:absolute;inset:0;background:rgba(31,35,40,.34);display:flex;align-items:center;justify-content:center;padding:24px}
+  .modal{width:460px;max-width:100%;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);display:flex;flex-direction:column;max-height:100%}
+  .m-head{display:flex;align-items:center;justify-content:space-between;padding:15px 18px;border-bottom:1px solid var(--line-soft)}
+  .m-head .t{font-weight:600;font-size:15px}.m-x{color:var(--faint)}
+  .m-body{padding:14px 18px;overflow:auto}
+  .stepn{font-family:var(--mono);font-size:11px;color:var(--muted);margin:12px 0 6px}
+  .drop{border:1px dashed var(--line);border-radius:var(--r);padding:14px;text-align:center;color:var(--muted);font-size:13px;background:var(--surface)}
+  .drop .sample{font-family:var(--mono);font-size:11px;color:var(--faint);margin-top:6px}
+  table.pv{border-collapse:collapse;width:100%;font-size:12.5px;margin-top:4px}
+  table.pv td{border:1px solid var(--line-soft);padding:6px 8px;color:var(--ink-soft);font-family:var(--mono)}
+  .val{border:1px solid var(--line);border-radius:var(--r);background:var(--surface);padding:8px 11px;font-size:12.5px;color:var(--ink);margin:3px 0}
+  .m-foot{padding:12px 18px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px;align-items:center}
+  .m-foot .res{margin-right:auto;font-size:12px;color:var(--muted)}
+  .screenfoot{background:var(--surface-2);border-top:1px solid var(--line);padding:10px 22px;font-size:11.5px;color:var(--muted);display:flex;gap:18px;flex-wrap:wrap;flex:none}
+  .screenfoot b{color:var(--ink-soft);font-weight:600}.screenfoot .br{font-family:var(--mono);font-size:10.5px}
+  a.home{color:var(--faint);text-decoration:none}
+  @media(max-width:900px){.app{grid-template-columns:60px 1fr}.nav a span.t,.s-brand small,.s-profile .txt{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="s-brand">◇ Woobly<small>Manager Dashboard</small></div>
+    <nav class="nav">
+      <a href="01-live-board.html"><span class="i">▤</span><span class="t">Meeting Rooms</span></a>
+      <a href="02-dashboard.html"><span class="i">◔</span><span class="t">Dashboard</span></a>
+      <a href="03-bookings.html"><span class="i">▦</span><span class="t">Bookings</span></a>
+      <a href="05-manage-rooms.html"><span class="i">▥</span><span class="t">Manage Rooms</span></a>
+      <a href="13-fnb-menu.html"><span class="i">◑</span><span class="t">F&amp;B Menu</span></a>
+      <a class="active" href="08-members.html"><span class="i">◎</span><span class="t">Members</span></a>
+      <a href="15-luxegenie-devices.html"><span class="i">▭</span><span class="t">LUXEGENIE</span></a>
+      <a href="12-users.html"><span class="i">◍</span><span class="t">Users</span></a>
+      <a href="10-settings.html"><span class="i">⚙</span><span class="t">Settings</span></a>
+    </nav>
+    <div class="s-profile"><span class="avatar">MG</span><span class="txt">Manager<br><span style="color:var(--faint)">ops@quorum</span></span><span class="lo">⏻</span></div>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <div><div class="tb-title">Members / Guests</div><div class="tb-sub">Member database</div></div>
+      <div class="tb-right"><span class="icon-btn">☀</span><a class="icon-btn" href="14-recent-activities.html" style="text-decoration:none" title="Recent Activities">🔔<span class="dot">3</span></a><span class="avatar">MG</span></div>
+    </div>
+    <div class="content">
+      <div class="list">
+        <div class="actionbar"><div class="search">⌕ Search member id / name / mobile…</div>
+          <button class="btn" style="margin-left:auto">Import CSV</button><button class="btn primary">＋ Add Member</button></div>
+        <div style="display:flex;gap:6px;margin-bottom:12px"><span class="tab on">Members</span><span class="tab">Guests</span></div>
+        <div class="mrow"><span class="mid">M-1024</span><span class="nm">Priya Mehta</span><span style="color:var(--muted)">90000 00000</span><span class="badge">Q Pay ✓</span><span class="r"><span class="badge">Active</span><span class="ic">✎</span><span class="ic">🗑</span></span></div>
+        <div class="mrow"><span class="mid">M-1025</span><span class="nm">Dev Sharma</span><span style="color:var(--faint)">—</span><span class="badge">Q Pay ✓</span><span class="r"><span class="badge">Active</span><span class="ic">✎</span><span class="ic">🗑</span></span></div>
+      </div>
+
+      <div class="scrim">
+        <div class="modal">
+          <div class="m-head"><div class="t">Import Members (CSV)</div><span class="m-x">✕</span></div>
+          <div class="m-body">
+            <div class="stepn">Step 1 · Upload</div>
+            <div class="drop">⬆ Choose CSV file<div class="sample">columns: member_id, name, mobile, q_pay</div></div>
+            <div class="stepn">Step 2 · Preview (first rows)</div>
+            <table class="pv">
+              <tr><td>M-2001</td><td>Rao</td><td>98•• ••••</td><td>Y</td></tr>
+              <tr><td>M-2002</td><td>Iyer</td><td>—</td><td>N</td></tr>
+            </table>
+            <div class="stepn">Step 3 · Validation</div>
+            <div class="val">⚠ 2 rows: duplicate member_id → will be skipped</div>
+            <div class="val">⚠ 1 row: missing name → will be skipped</div>
+          </div>
+          <div class="m-foot"><span class="res">148 valid · 3 skipped</span><button class="btn">Cancel</button><button class="btn primary">Import 148 rows</button></div>
+        </div>
+      </div>
+    </div>
+    <div class="screenfoot">
+      <span><b>S12 Members / Guests</b> — the internal member database (CSV-seeded, editable)</span>
+      <span>Feeds the New Booking member lookup; an <b>invalid ID blocks the booking</b></span>
+      <span>Guests are read-only, derived from bookings</span>
+      <span class="br">BR-MEM1..MEM4 · FD-18</span>
+      <span><a class="home" href="index.html">← all screens</a></span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

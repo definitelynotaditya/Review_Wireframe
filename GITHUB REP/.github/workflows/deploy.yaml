@@ -1,0 +1,65 @@
+name: Build & Deploy to S3 + CloudFront
+
+on:
+    push:
+        branches:
+            - main
+    pull_request:
+        branches:
+            - main
+        types:
+            - closed
+
+env:
+    NODE_VERSION: "18"
+    SOURCE_DIR: "./dist"
+
+jobs:
+    deploy:
+        if: |
+            github.event_name == 'push' ||
+            (github.event_name == 'pull_request' && github.event.pull_request.merged == true)
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Use Node.js ${{ env.NODE_VERSION }}
+              uses: actions/setup-node@v4
+              with:
+                  node-version: ${{ env.NODE_VERSION }}
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Create production env file
+              run: |
+                  echo "VITE_BASE_URL=${{ secrets.VITE_BASE_URL }}" > .env.production
+                  echo "VITE_PUSHER_APP_KEY=${{ secrets.VITE_PUSHER_APP_KEY }}" >> .env.production
+                  echo "VITE_PUSHER_CLUSTER=${{ secrets.VITE_PUSHER_CLUSTER }}" >> .env.production
+              shell: bash
+
+            - name: Build project
+              run: npm run build
+
+            - name: Sync build to S3
+              uses: jakejarvis/s3-sync-action@v0.5.1
+              with:
+                  args: --delete
+              env:
+                  AWS_S3_BUCKET: ${{ secrets.S3_BUCKET }}
+                  AWS_REGION: ${{ secrets.AWS_REGION }}
+                  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+                  SOURCE_DIR: ${{ env.SOURCE_DIR }}
+
+            - name: Invalidate CloudFront cache
+              uses: chetan/invalidate-cloudfront-action@v2
+              env:
+                  DISTRIBUTION: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}
+                  PATHS: "/index.html"
+                  AWS_REGION: ${{ secrets.AWS_REGION }}
+                  AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+                  AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}

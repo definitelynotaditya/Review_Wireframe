@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S10 · F&B Order Review</title>
+<style>
+  :root{
+    --ink:#1f2328;--ink-soft:#4a5058;--muted:#868d95;--faint:#a7adb4;
+    --line:#d3d8dd;--line-soft:#e6e9ed;--paper:#fff;--surface:#f6f7f9;--surface-2:#eceef1;
+    --fill:#e0e3e7;--dark:#2b2f36;--r:6px;--r-lg:8px;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:var(--sans);color:var(--ink);background:var(--surface);line-height:1.45;-webkit-font-smoothing:antialiased;font-size:14px}
+  .app{display:grid;grid-template-columns:232px 1fr;height:100vh;min-height:640px}
+  .sidebar{background:var(--paper);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:16px 12px}
+  .s-brand{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);padding:6px 10px 2px}
+  .s-brand small{display:block;font-size:10px;letter-spacing:.12em;color:var(--faint);margin-top:3px}
+  .nav{margin-top:18px;display:flex;flex-direction:column;gap:1px;flex:1}
+  .nav a{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink-soft);font-size:13.5px;padding:8px 10px;border-radius:var(--r);border-left:2px solid transparent}
+  .nav a .i{width:15px;text-align:center;color:var(--faint);font-size:13px}
+  .nav a.active{background:var(--surface-2);color:var(--ink);font-weight:600;border-left-color:var(--dark)}
+  .nav a.active .i{color:var(--ink)}
+  .s-profile{border-top:1px solid var(--line-soft);padding:12px 10px 4px;display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--ink-soft)}
+  .avatar{width:26px;height:26px;border-radius:100px;background:var(--fill);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink-soft)}
+  .s-profile .lo{margin-left:auto;color:var(--faint)}
+  .main{display:flex;flex-direction:column;min-width:0;height:100vh}
+  .topbar{height:60px;flex:none;border-bottom:1px solid var(--line);background:var(--paper);display:flex;align-items:center;padding:0 22px;gap:16px}
+  .tb-title{font-size:17px;font-weight:600}.tb-sub{font-size:12.5px;color:var(--muted);margin-top:1px}
+  .tb-right{margin-left:auto;display:flex;align-items:center;gap:14px;color:var(--muted)}
+  .icon-btn{position:relative;width:30px;height:30px;border:1px solid var(--line);border-radius:var(--r);background:var(--paper);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--ink-soft)}
+  .dot{position:absolute;top:-6px;right:-6px;min-width:16px;height:16px;background:var(--dark);color:#fff;border-radius:100px;font-size:10px;display:flex;align-items:center;justify-content:center;padding:0 4px;font-family:var(--mono)}
+  .content{flex:1;overflow:hidden;display:flex;position:relative;min-width:0}
+  .behind{flex:1;padding:18px 22px;filter:grayscale(1);opacity:.5;overflow:hidden}
+  .behind .ph{height:120px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);margin-bottom:12px}
+  .scrim{position:absolute;inset:0;background:rgba(31,35,40,.24)}
+  .btn{font-size:12.5px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:var(--r);padding:8px 14px;white-space:nowrap}
+  .btn.primary{background:var(--dark);color:#fff;border-color:var(--dark);font-weight:500}
+  .drawer{position:relative;width:400px;flex:none;margin-left:auto;background:var(--paper);border-left:1px solid var(--ink-soft);display:flex;flex-direction:column;height:100%;z-index:2}
+  .dw-head{padding:15px 20px 12px;border-bottom:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:flex-start}
+  .dw-head .t{font-weight:600;font-size:15px}.dw-head .t small{display:block;color:var(--muted);font-weight:500;font-size:12px;margin-top:3px}
+  .badge{font-family:var(--mono);font-size:10.5px;border:1px solid var(--ink-soft);border-radius:4px;padding:2px 7px;color:var(--ink);background:var(--surface)}
+  .dw-x{color:var(--faint)}
+  .dw-body{padding:6px 20px;overflow:auto;flex:1}
+  .lh{display:flex;align-items:center;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600;padding:10px 0 4px;border-bottom:1px solid var(--line-soft)}
+  .lh .q{margin-left:auto;width:96px}.lh .p{width:64px;text-align:right}
+  .li{display:flex;align-items:center;padding:11px 0;border-bottom:1px solid var(--line-soft);font-size:13.5px}
+  .li .nm{flex:1}
+  .qty{display:inline-flex;align-items:center;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+  .qty span{padding:4px 9px;color:var(--muted)}.qty b{padding:4px 10px;border-left:1px solid var(--line);border-right:1px solid var(--line);font-variant-numeric:tabular-nums}
+  .li .p{width:64px;text-align:right;font-variant-numeric:tabular-nums;color:var(--ink-soft)}
+  .li .del{width:28px;text-align:center;color:var(--faint)}
+  .add{display:flex;gap:8px;margin:14px 0;flex-wrap:wrap}
+  .add .in{flex:1;min-width:150px;border:1px dashed var(--line);border-radius:var(--r);padding:8px 11px;color:var(--muted);font-size:12.5px;background:var(--paper)}
+  .dw-foot{padding:12px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:8px}
+  .screenfoot{background:var(--surface-2);border-top:1px solid var(--line);padding:10px 22px;font-size:11.5px;color:var(--muted);display:flex;gap:18px;flex-wrap:wrap;flex:none}
+  .screenfoot b{color:var(--ink-soft);font-weight:600}.screenfoot .br{font-family:var(--mono);font-size:10.5px}
+  a.home{color:var(--faint);text-decoration:none}
+  @media(max-width:900px){.app{grid-template-columns:60px 1fr}.nav a span.t,.s-brand small,.s-profile .txt{display:none}.behind{display:none}.drawer{width:100%}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="s-brand">◇ Woobly<small>Manager Dashboard</small></div>
+    <nav class="nav">
+      <a class="active" href="01-live-board.html"><span class="i">▤</span><span class="t">Meeting Rooms</span></a>
+      <a href="02-dashboard.html"><span class="i">◔</span><span class="t">Dashboard</span></a>
+      <a href="03-bookings.html"><span class="i">▦</span><span class="t">Bookings</span></a>
+      <a href="05-manage-rooms.html"><span class="i">▥</span><span class="t">Manage Rooms</span></a>
+      <a href="13-fnb-menu.html"><span class="i">◑</span><span class="t">F&amp;B Menu</span></a>
+      <a href="08-members.html"><span class="i">◎</span><span class="t">Members</span></a>
+      <a href="15-luxegenie-devices.html"><span class="i">▭</span><span class="t">LUXEGENIE</span></a>
+      <a href="12-users.html"><span class="i">◍</span><span class="t">Users</span></a>
+      <a href="10-settings.html"><span class="i">⚙</span><span class="t">Settings</span></a>
+    </nav>
+    <div class="s-profile"><span class="avatar">MG</span><span class="txt">Manager<br><span style="color:var(--faint)">ops@quorum</span></span><span class="lo">⏻</span></div>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <div><div class="tb-title">Meeting Rooms</div><div class="tb-sub">F&amp;B Order · R01</div></div>
+      <div class="tb-right"><span class="icon-btn">☀</span><a class="icon-btn" href="14-recent-activities.html" style="text-decoration:none" title="Recent Activities">🔔<span class="dot">3</span></a><span class="avatar">MG</span></div>
+    </div>
+    <div class="content">
+      <div class="behind"><div class="ph"></div><div class="ph"></div><div class="ph"></div></div>
+      <div class="scrim"></div>
+      <aside class="drawer">
+        <div class="dw-head"><div class="t">F&amp;B Order · R01 · Anil K.<small>Placed 13:42 · waiting 0m</small></div><span class="badge">F&amp;B Order Requested</span></div>
+        <div class="dw-body">
+          <div class="lh">Item<span class="q">Qty</span><span class="p">Price</span><span style="width:28px"></span></div>
+          <div class="li"><span class="nm">Cold Coffee</span><span class="qty" style="margin-left:auto"><span>−</span><b>2</b><span>＋</span></span><span class="p">₹360</span><span class="del">🗑</span></div>
+          <div class="li"><span class="nm">Veg Sandwich</span><span class="qty" style="margin-left:auto"><span>−</span><b>1</b><span>＋</span></span><span class="p">₹220</span><span class="del">🗑</span></div>
+          <div class="li"><span class="nm">Masala Fries</span><span class="qty" style="margin-left:auto"><span>−</span><b>1</b><span>＋</span></span><span class="p">₹180</span><span class="del">🗑</span></div>
+          <div class="add">
+            <span class="btn">＋ Add item</span>
+            <span class="in">＋ Add verbal order…</span>
+          </div>
+          <p style="font-size:11.5px;color:var(--faint);font-family:var(--mono)">Staff review &amp; punch manually — no kitchen/POS automation in V1 (auto-F&amp;B is future). If unattended &gt; 1 min → card shakes + bell + ⌚.</p>
+        </div>
+        <div class="dw-foot"><button class="btn primary">Order Punched</button></div>
+      </aside>
+    </div>
+    <div class="screenfoot">
+      <span><b>S10 F&amp;B Order Review</b> — review, edit &amp; <b>punch</b> a placed order</span>
+      <span>Staff may add / remove / change quantity / add verbal orders before punching</span>
+      <span>Closes on <b>Order Punched</b> — the canonical closure verb</span>
+      <span class="br">BR-F2/F3/F4/F5 · FD-05</span>
+      <span><a class="home" href="13-fnb-menu.html" style="text-decoration:underline">F&amp;B Menu</a> · <a class="home" href="index.html">all screens</a></span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

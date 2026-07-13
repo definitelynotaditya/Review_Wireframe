@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S5 · New Booking — Guided Flow</title>
+<style>
+  :root{
+    --ink:#1f2328;--ink-soft:#4a5058;--muted:#868d95;--faint:#a7adb4;
+    --line:#d3d8dd;--line-soft:#e6e9ed;--paper:#fff;--surface:#f6f7f9;--surface-2:#eceef1;
+    --fill:#e0e3e7;--dark:#2b2f36;--r:6px;--r-lg:8px;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:var(--sans);color:var(--ink);background:var(--surface);line-height:1.45;-webkit-font-smoothing:antialiased;font-size:14px}
+  .app{display:grid;grid-template-columns:232px 1fr;height:100vh;min-height:640px}
+  .sidebar{background:var(--paper);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:16px 12px}
+  .s-brand{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);padding:6px 10px 2px}
+  .s-brand small{display:block;font-size:10px;letter-spacing:.12em;color:var(--faint);margin-top:3px}
+  .nav{margin-top:18px;display:flex;flex-direction:column;gap:1px;flex:1}
+  .nav a{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink-soft);font-size:13.5px;padding:8px 10px;border-radius:var(--r);border-left:2px solid transparent}
+  .nav a .i{width:15px;text-align:center;color:var(--faint);font-size:13px}
+  .nav a.active{background:var(--surface-2);color:var(--ink);font-weight:600;border-left-color:var(--dark)}
+  .nav a.active .i{color:var(--ink)}
+  .s-profile{border-top:1px solid var(--line-soft);padding:12px 10px 4px;display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--ink-soft)}
+  .avatar{width:26px;height:26px;border-radius:100px;background:var(--fill);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink-soft)}
+  .s-profile .lo{margin-left:auto;color:var(--faint)}
+  .main{display:flex;flex-direction:column;min-width:0;height:100vh}
+  .topbar{height:60px;flex:none;border-bottom:1px solid var(--line);background:var(--paper);display:flex;align-items:center;padding:0 22px;gap:16px}
+  .tb-title{font-size:17px;font-weight:600}.tb-sub{font-size:12.5px;color:var(--muted);margin-top:1px}
+  .tb-right{margin-left:auto;display:flex;align-items:center;gap:14px;color:var(--muted)}
+  .icon-btn{position:relative;width:30px;height:30px;border:1px solid var(--line);border-radius:var(--r);background:var(--paper);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--ink-soft)}
+  .dot{position:absolute;top:-6px;right:-6px;min-width:16px;height:16px;background:var(--dark);color:#fff;border-radius:100px;font-size:10px;display:flex;align-items:center;justify-content:center;padding:0 4px;font-family:var(--mono)}
+  .content{flex:1;overflow:hidden;display:flex;min-width:0;position:relative}
+  .behind{flex:1;padding:18px 22px;filter:grayscale(1);opacity:.5;pointer-events:none;overflow:hidden}
+  .behind .ph{height:52px;background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);margin-bottom:11px}
+  .scrim{position:absolute;inset:0;background:rgba(31,35,40,.28)}
+  .btn{font-size:12.5px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:var(--r);padding:7px 14px;white-space:nowrap}
+  .btn.primary{background:var(--dark);color:#fff;border-color:var(--dark);font-weight:500}
+  .badge{font-family:var(--mono);font-size:10.5px;border:1px solid var(--line);border-radius:4px;padding:2px 7px;color:var(--ink-soft);background:var(--surface)}
+  /* drawer */
+  .drawer{position:relative;width:480px;flex:none;margin-left:auto;background:var(--paper);border-left:1px solid var(--ink-soft);display:flex;flex-direction:column;height:100%;z-index:2}
+  .dw-head{display:flex;align-items:center;justify-content:space-between;padding:15px 20px 12px;border-bottom:1px solid var(--line-soft)}
+  .dw-head .t{font-size:15px;font-weight:600}
+  .dw-x{color:var(--faint);font-size:16px}
+  .rail{display:flex;gap:3px;padding:12px 20px;border-bottom:1px solid var(--line-soft);flex-wrap:wrap}
+  .rail .st{font-family:var(--mono);font-size:10.5px;color:var(--faint);border:1px solid var(--line);border-radius:100px;padding:2px 8px}
+  .rail .st.done{color:var(--ink-soft);background:var(--surface)}
+  .rail .st.on{color:#fff;background:var(--dark);border-color:var(--dark)}
+  .dw-body{padding:6px 20px 12px;overflow:auto;flex:1}
+  .step{padding:12px 0;border-bottom:1px solid var(--line-soft)}
+  .step .k{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;margin-bottom:7px}
+  .field{border:1px solid var(--line);border-radius:var(--r);padding:8px 11px;font-size:13px;color:var(--ink-soft);background:var(--paper);display:inline-flex;align-items:center;gap:8px;min-width:150px}
+  .pick{display:flex;gap:6px;flex-wrap:wrap}
+  .opt{font-size:12.5px;border:1px solid var(--line);border-radius:100px;padding:5px 12px;color:var(--ink-soft);background:var(--paper)}
+  .opt.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+  .rooms{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:4px}
+  .rroom{border:1px solid var(--line);border-radius:var(--r);padding:9px;text-align:center;font-size:12px}
+  .rroom.on{border-color:var(--dark)}
+  .rroom .id{font-weight:700;font-size:13px}
+  .rroom .sub{color:var(--muted);font-size:11px;margin:2px 0 6px}
+  .rroom .sel{font-size:11px;border:1px solid var(--line);border-radius:4px;padding:2px 8px;display:inline-block}
+  .rroom.on .sel{background:var(--dark);color:#fff;border-color:var(--dark)}
+  .hint{font-size:11.5px;color:var(--faint);margin-top:7px;font-family:var(--mono)}
+  .lk{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .ok{font-size:12px;color:var(--ink-soft)}
+  .summary{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:11px 13px;font-size:13px}
+  .summary b{font-weight:600}
+  .dw-foot{padding:12px 20px;border-top:1px solid var(--line);display:flex;gap:8px;justify-content:space-between}
+  .screenfoot{background:var(--surface-2);border-top:1px solid var(--line);padding:10px 22px;font-size:11.5px;color:var(--muted);display:flex;gap:18px;flex-wrap:wrap;flex:none}
+  .screenfoot b{color:var(--ink-soft);font-weight:600}.screenfoot .br{font-family:var(--mono);font-size:10.5px}
+  a.home{color:var(--faint);text-decoration:none}
+  @media(max-width:900px){.app{grid-template-columns:60px 1fr}.nav a span.t,.s-brand small,.s-profile .txt{display:none}.behind{display:none}.drawer{width:100%}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="s-brand">◇ Woobly<small>Manager Dashboard</small></div>
+    <nav class="nav">
+      <a href="01-live-board.html"><span class="i">▤</span><span class="t">Meeting Rooms</span></a>
+      <a href="02-dashboard.html"><span class="i">◔</span><span class="t">Dashboard</span></a>
+      <a class="active" href="03-bookings.html"><span class="i">▦</span><span class="t">Bookings</span></a>
+      <a href="05-manage-rooms.html"><span class="i">▥</span><span class="t">Manage Rooms</span></a>
+      <a href="13-fnb-menu.html"><span class="i">◑</span><span class="t">F&amp;B Menu</span></a>
+      <a href="08-members.html"><span class="i">◎</span><span class="t">Members</span></a>
+      <a href="15-luxegenie-devices.html"><span class="i">▭</span><span class="t">LUXEGENIE</span></a>
+      <a href="12-users.html"><span class="i">◍</span><span class="t">Users</span></a>
+      <a href="10-settings.html"><span class="i">⚙</span><span class="t">Settings</span></a>
+    </nav>
+    <div class="s-profile"><span class="avatar">MG</span><span class="txt">Manager<br><span style="color:var(--faint)">ops@quorum</span></span><span class="lo">⏻</span></div>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <div><div class="tb-title">Bookings · New Booking</div><div class="tb-sub">Calendar-first guided flow</div></div>
+      <div class="tb-right"><span class="icon-btn">☀</span><a class="icon-btn" href="14-recent-activities.html" style="text-decoration:none" title="Recent Activities">🔔<span class="dot">3</span></a><span class="avatar">MG</span></div>
+    </div>
+    <div class="content">
+      <div class="behind"><div class="ph"></div><div class="ph"></div><div class="ph"></div><div class="ph"></div></div>
+      <div class="scrim"></div>
+      <aside class="drawer">
+        <div class="dw-head"><div class="t">New Booking</div><span class="dw-x">✕</span></div>
+        <div class="rail">
+          <span class="st done">① Date</span><span class="st done">② Duration</span><span class="st done">③ Slot</span>
+          <span class="st done">④ Seats</span><span class="st on">⑤ Rooms</span><span class="st">⑥ Details</span><span class="st">⑦ Confirm</span>
+        </div>
+        <div class="dw-body">
+          <div class="step">
+            <div class="k">Step 1–4 · Constraints (staff supply these)</div>
+            <div class="pick" style="gap:10px">
+              <span class="field">📅 14 / 07 / 2026 ▾</span>
+            </div>
+            <div style="margin:9px 0 3px;font-size:11px;color:var(--muted)">Duration</div>
+            <div class="pick"><span class="opt">1h</span><span class="opt">2h</span><span class="opt on">Half-Day</span><span class="opt">Full-Day</span></div>
+            <div style="margin:9px 0 3px;font-size:11px;color:var(--muted)">Time slot (hourly)</div>
+            <div class="pick"><span class="opt">13:00</span><span class="opt on">14:00</span><span class="opt">15:00</span><span class="opt">16:00</span></div>
+            <div style="margin:9px 0 3px;font-size:11px;color:var(--muted)">Number of seats</div>
+            <div class="pick"><span class="field" style="min-width:80px">6</span></div>
+          </div>
+
+          <div class="step">
+            <div class="k">Step 5 · Available rooms — the engine matches, staff never scan a list</div>
+            <div class="hint" style="margin:0 0 8px">capacity ≥ 6 · free 14:00–18:00 · not maintenance · not booked</div>
+            <div class="rooms">
+              <div class="rroom"><div class="id">R06</div><div class="sub">6 seats · est ₹6,000</div><span class="sel">Select</span></div>
+              <div class="rroom on"><div class="id">R08</div><div class="sub">8 seats · est ₹8,000</div><span class="sel">Selected ✓</span></div>
+              <div class="rroom"><div class="id">R10</div><div class="sub">10 seats · est ₹9,000</div><span class="sel">Select</span></div>
+            </div>
+            <div class="hint">4-seaters excluded (below required seats) · estimate auto-computed from Half-Day band</div>
+          </div>
+
+          <div class="step">
+            <div class="k">Step 6 · Booking details</div>
+            <div class="pick" style="margin-bottom:9px"><span class="opt on">Member</span><span class="opt">Guest</span></div>
+            <div class="lk"><span class="field">Member ID: M-1024</span><button class="btn">Lookup</button>
+              <span class="ok">→ ✓ <b>Priya Mehta</b> · Q Pay ✓ <span style="color:var(--faint)">(auto-filled)</span></span></div>
+            <div style="margin:10px 0 3px;font-size:11px;color:var(--muted)">Recurring</div>
+            <div class="pick"><span class="opt">☐ Recurring</span><span class="opt">Weekly</span><span class="opt">Monthly</span><span class="field" style="min-width:120px">Until ≤ 6 mo</span></div>
+            <div style="margin:10px 0 3px;font-size:11px;color:var(--muted)">Booking channel</div>
+            <div class="pick"><span class="opt">Phone</span><span class="opt on">WhatsApp</span><span class="opt">Email</span></div>
+          </div>
+
+          <div class="step" style="border-bottom:0">
+            <div class="k">Step 7 · Confirm</div>
+            <div class="summary"><b>R08</b> · 8 seats · 14 Jul · 14:00–18:00 (Half-Day) · est <b>₹8,000</b><br>
+              Member: <b>Priya Mehta</b> (M-1024) · 6 pax · via WhatsApp</div>
+            <div class="hint">On confirm: first-save-wins. A conflict offers an Override (deliberate, logged) — never a dead end.</div>
+          </div>
+        </div>
+        <div class="dw-foot"><button class="btn">Back</button><button class="btn primary">Confirm Booking</button></div>
+      </aside>
+    </div>
+    <div class="screenfoot">
+      <span><b>S5 New Booking</b> — calendar-first, engine-backed (FD-13)</span>
+      <span>Constraints → <b>Availability Engine + Seat Filter + Pricing Calculator</b> → matching rooms with rates</span>
+      <span>Member ID auto-fills; invalid ID blocks Confirm</span>
+      <span class="br">BR-A2/A3 · BR-P1..P5 · BR-MEM2/3 · BR-CF1/CF2</span>
+      <span><a class="home" href="index.html">← all screens</a></span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S1 · Meeting Rooms — Live Board</title>
+<style>
+  :root{
+    --ink:#1f2328;--ink-soft:#4a5058;--muted:#868d95;--faint:#a7adb4;
+    --line:#d3d8dd;--line-soft:#e6e9ed;--paper:#fff;--surface:#f6f7f9;--surface-2:#eceef1;
+    --fill:#e0e3e7;--dark:#2b2f36;--r:6px;--r-lg:8px;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:var(--sans);color:var(--ink);background:var(--surface);line-height:1.45;
+    -webkit-font-smoothing:antialiased;font-size:14px}
+  /* ---------- shell ---------- */
+  .app{display:grid;grid-template-columns:232px 1fr;height:100vh;min-height:640px}
+  .sidebar{background:var(--paper);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:16px 12px}
+  .s-brand{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);padding:6px 10px 2px}
+  .s-brand small{display:block;font-size:10px;letter-spacing:.12em;color:var(--faint);margin-top:3px}
+  .nav{margin-top:18px;display:flex;flex-direction:column;gap:1px;flex:1}
+  .nav a{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink-soft);
+    font-size:13.5px;padding:8px 10px;border-radius:var(--r);border-left:2px solid transparent}
+  .nav a .i{width:15px;text-align:center;color:var(--faint);font-size:13px}
+  .nav a:hover{background:var(--surface)}
+  .nav a.active{background:var(--surface-2);color:var(--ink);font-weight:600;border-left-color:var(--dark)}
+  .nav a.active .i{color:var(--ink)}
+  .s-profile{border-top:1px solid var(--line-soft);padding:12px 10px 4px;display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--ink-soft)}
+  .avatar{width:26px;height:26px;border-radius:100px;background:var(--fill);border:1px solid var(--line);
+    display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink-soft)}
+  .s-profile .lo{margin-left:auto;color:var(--faint)}
+  .main{display:flex;flex-direction:column;min-width:0;height:100vh}
+  .topbar{height:60px;flex:none;border-bottom:1px solid var(--line);background:var(--paper);
+    display:flex;align-items:center;padding:0 22px;gap:16px}
+  .tb-title{font-size:17px;font-weight:600;letter-spacing:-.01em}
+  .tb-sub{font-size:12.5px;color:var(--muted);margin-top:1px}
+  .tb-right{margin-left:auto;display:flex;align-items:center;gap:14px;color:var(--muted)}
+  .icon-btn{position:relative;width:30px;height:30px;border:1px solid var(--line);border-radius:var(--r);
+    background:var(--paper);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--ink-soft)}
+  .dot{position:absolute;top:-6px;right:-6px;min-width:16px;height:16px;background:var(--dark);color:#fff;
+    border-radius:100px;font-size:10px;display:flex;align-items:center;justify-content:center;padding:0 4px;font-family:var(--mono)}
+  .content{flex:1;overflow:auto;display:flex;min-width:0}
+  .board{flex:1;min-width:0;padding:18px 22px 40px}
+  /* ---------- filters ---------- */
+  .filterbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:8px}
+  .search{flex:1;min-width:200px;max-width:340px;display:flex;align-items:center;gap:8px;
+    border:1px solid var(--line);border-radius:var(--r);background:var(--paper);padding:7px 11px;color:var(--muted);font-size:13px}
+  .tabset{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+  .tabset .lbl{font-size:11px;text-transform:uppercase;letter-spacing:.06em;color:var(--faint);margin-right:2px}
+  .tab{font-size:12.5px;color:var(--ink-soft);border:1px solid var(--line);border-radius:100px;
+    padding:4px 11px;background:var(--paper);white-space:nowrap}
+  .tab.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+  .tab .c{color:var(--faint);font-family:var(--mono);font-size:11px}
+  .tab.on .c{color:#c9cdd2}
+  /* ---------- sections + cards ---------- */
+  .seclabel{display:flex;align-items:center;gap:8px;margin:22px 0 10px;font-size:11px;
+    text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
+  .seclabel::after{content:"";flex:1;height:1px;background:var(--line-soft)}
+  .seclabel .cnt{color:var(--faint);font-family:var(--mono)}
+  .board-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(258px,1fr));gap:14px}
+  .rcard{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:13px 14px 12px;display:flex;flex-direction:column;min-height:132px}
+  .rcard.attn{border-color:var(--ink-soft)}
+  .rc-head{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
+  .rc-id{font-size:14.5px;font-weight:700}
+  .rc-id small{font-weight:500;color:var(--muted);font-size:12px}
+  .rc-meta{font-size:12px;color:var(--muted);margin-top:2px}
+  .rc-occ{font-size:12.5px;color:var(--ink-soft);margin-top:9px}
+  .rc-occ b{font-weight:600;color:var(--ink)}
+  .rc-req{margin-top:7px;display:flex;flex-wrap:wrap;gap:5px}
+  .rc-foot{margin-top:auto;padding-top:11px;display:flex;align-items:center;gap:8px}
+  .badge{font-family:var(--mono);font-size:10.5px;border:1px solid var(--line);border-radius:4px;
+    padding:2px 7px;color:var(--ink-soft);background:var(--surface);white-space:nowrap;letter-spacing:.02em}
+  .badge.state{border-color:var(--ink-soft);color:var(--ink)}
+  .badge.warn{border-color:var(--dark);color:#fff;background:var(--dark)}
+  .badge.soft{background:var(--paper);color:var(--muted)}
+  .btn{font-size:12.5px;border:1px solid var(--line);background:var(--paper);color:var(--ink);
+    border-radius:var(--r);padding:6px 12px;cursor:default;white-space:nowrap;font-family:var(--sans)}
+  .btn.primary{background:var(--dark);color:#fff;border-color:var(--dark);font-weight:500}
+  .btn.block{flex:1;text-align:center}
+  .kebab{margin-left:auto;width:26px;height:26px;border:1px solid var(--line);border-radius:var(--r);
+    background:var(--paper);color:var(--muted);display:flex;align-items:center;justify-content:center}
+  /* ---------- room-detail drawer ---------- */
+  .drawer{width:344px;flex:none;background:var(--paper);border-left:1px solid var(--ink-soft);
+    display:flex;flex-direction:column;height:100%}
+  .dw-tag{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--faint);padding:12px 18px 0}
+  .dw-head{display:flex;align-items:flex-start;justify-content:space-between;padding:4px 18px 12px;border-bottom:1px solid var(--line-soft)}
+  .dw-title{font-size:15px;font-weight:600}
+  .dw-title small{display:block;color:var(--muted);font-weight:500;font-size:12px;margin-top:2px}
+  .dw-x{color:var(--faint);font-size:16px}
+  .dw-body{padding:6px 18px;overflow:auto;flex:1}
+  .dw-sec{padding:12px 0;border-bottom:1px solid var(--line-soft)}
+  .dw-sec .h{font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:6px;font-weight:600}
+  .dw-line{font-size:13px;color:var(--ink-soft);margin:3px 0}
+  .dw-line b{color:var(--ink);font-weight:600}
+  .act{display:flex;gap:8px;font-size:12px;color:var(--ink-soft);padding:4px 0;border-bottom:1px dotted var(--line-soft)}
+  .act .t{color:var(--faint);font-family:var(--mono);font-size:11px;min-width:38px}
+  .act .ok{margin-left:auto;color:var(--muted)}
+  .dw-foot{padding:12px 18px;border-top:1px solid var(--line);display:flex;gap:8px;flex-wrap:wrap}
+  /* ---------- annotation ---------- */
+  .screenfoot{background:var(--surface-2);border-top:1px solid var(--line);padding:10px 22px;
+    font-size:11.5px;color:var(--muted);display:flex;gap:18px;flex-wrap:wrap;flex:none}
+  .screenfoot b{color:var(--ink-soft);font-weight:600}
+  .screenfoot .br{font-family:var(--mono);font-size:10.5px}
+  a.home{color:var(--faint);text-decoration:none}
+  @media(max-width:900px){.app{grid-template-columns:60px 1fr}.nav a span.t,.s-brand small,.s-profile .txt{display:none}.drawer{display:none}}
+</style>
+</head>
+<body>
+<div class="app">
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="s-brand">◇ Woobly<small>Manager Dashboard</small></div>
+    <nav class="nav">
+      <a class="active" href="01-live-board.html"><span class="i">▤</span><span class="t">Meeting Rooms</span></a>
+      <a href="02-dashboard.html"><span class="i">◔</span><span class="t">Dashboard</span></a>
+      <a href="03-bookings.html"><span class="i">▦</span><span class="t">Bookings</span></a>
+      <a href="05-manage-rooms.html"><span class="i">▥</span><span class="t">Manage Rooms</span></a>
+      <a href="13-fnb-menu.html"><span class="i">◑</span><span class="t">F&amp;B Menu</span></a>
+      <a href="08-members.html"><span class="i">◎</span><span class="t">Members</span></a>
+      <a href="15-luxegenie-devices.html"><span class="i">▭</span><span class="t">LUXEGENIE</span></a>
+      <a href="12-users.html"><span class="i">◍</span><span class="t">Users</span></a>
+      <a href="10-settings.html"><span class="i">⚙</span><span class="t">Settings</span></a>
+    </nav>
+    <div class="s-profile"><span class="avatar">MG</span><span class="txt">Manager<br><span style="color:var(--faint)">ops@quorum</span></span><span class="lo">⏻</span></div>
+  </aside>
+
+  <!-- MAIN -->
+  <div class="main">
+    <div class="topbar">
+      <div><div class="tb-title">Meeting Rooms</div><div class="tb-sub">See live room status</div></div>
+      <div class="tb-right">
+        <span class="icon-btn">☀</span>
+        <a class="icon-btn" href="14-recent-activities.html" style="text-decoration:none" title="Recent Activities">🔔<span class="dot">3</span></a>
+        <span class="avatar">MG</span>
+      </div>
+    </div>
+
+    <div class="content">
+      <!-- BOARD -->
+      <div class="board">
+        <div class="filterbar">
+          <div class="search">⌕ Search rooms…</div>
+          <div class="tabset"><span class="lbl">Area</span>
+            <span class="tab on">All</span><span class="tab">Floor 1</span><span class="tab">Floor 2</span></div>
+          <div class="tabset"><span class="lbl">Status</span>
+            <span class="tab on">All</span><span class="tab">Available</span><span class="tab">In-Use</span>
+            <span class="tab">Ending</span><span class="tab">Billing</span><span class="tab">Maint</span></div>
+        </div>
+
+        <div class="seclabel">① Attention <span class="cnt">— sorted to top</span></div>
+        <div class="board-grid">
+          <div class="rcard attn">
+            <div class="rc-head"><div><div class="rc-id">R03 <small>Boardroom</small></div><div class="rc-meta">8 seats · Floor 1</div></div><span class="badge state">In-Use</span></div>
+            <div class="rc-occ"><b>Priya M.</b> · 14:00–15:00</div>
+            <div class="rc-req"><span class="badge warn">Assistance ⚠ 1m+</span></div>
+            <div class="rc-foot"><button class="btn primary block">Accept</button><span class="kebab">⋮</span></div>
+          </div>
+          <div class="rcard attn">
+            <div class="rc-head"><div><div class="rc-id">R01 <small>Huddle</small></div><div class="rc-meta">6 seats · Floor 1</div></div><span class="badge state">In-Use</span></div>
+            <div class="rc-occ"><b>Anil K.</b> · 13:30–15:30</div>
+            <div class="rc-req"><span class="badge">F&amp;B Order Requested</span></div>
+            <div class="rc-foot"><a class="btn primary block" style="text-decoration:none" href="07-fnb-order-review.html">View Order</a><span class="kebab">⋮</span></div>
+          </div>
+          <div class="rcard attn">
+            <div class="rc-head"><div><div class="rc-id">R07 <small>Council</small></div><div class="rc-meta">10 seats · Floor 2</div></div><span class="badge state">Ending Soon</span></div>
+            <div class="rc-occ"><b>Rao</b> · ends in 09m</div>
+            <div class="rc-req"><span class="badge soft">next booking 15:30</span></div>
+            <div class="rc-foot"><a class="btn primary block" style="text-decoration:none" href="16-extension.html">Extend +30</a><span class="kebab">⋮</span></div>
+          </div>
+          <div class="rcard attn">
+            <div class="rc-head"><div><div class="rc-id">R05 <small>Nook</small></div><div class="rc-meta">4 seats · Floor 1</div></div><span class="badge state">Billing</span></div>
+            <div class="rc-occ"><b>Meera</b> · mode: Cash</div>
+            <div class="rc-req"><span class="badge">Bill Requested</span></div>
+            <div class="rc-foot"><a class="btn primary block" style="text-decoration:none" href="06-bill-payment.html">Enter Bill</a><span class="kebab">⋮</span></div>
+          </div>
+          <div class="rcard attn">
+            <div class="rc-head"><div><div class="rc-id">R09 <small>Studio</small></div><div class="rc-meta">6 seats · Floor 2</div></div><span class="badge warn">Ended — action needed</span></div>
+            <div class="rc-occ">guest left · unbilled</div>
+            <div class="rc-foot"><button class="btn primary block">End Meeting</button><span class="kebab">⋮</span></div>
+          </div>
+        </div>
+
+        <div class="seclabel">② In-Use / Reserved</div>
+        <div class="board-grid">
+          <div class="rcard">
+            <div class="rc-head"><div><div class="rc-id">R02</div><div class="rc-meta">8 seats · Floor 1</div></div><span class="badge state">In-Use</span></div>
+            <div class="rc-occ"><b>Dev S.</b> · 14:00–16:00</div>
+            <div class="rc-foot"><button class="btn block">View</button><span class="kebab">⋮</span></div>
+          </div>
+          <div class="rcard">
+            <div class="rc-head"><div><div class="rc-id">R04</div><div class="rc-meta">6 seats · Floor 1</div></div><span class="badge state">Reserved</span></div>
+            <div class="rc-occ"><b>Sana</b> · 15:00 (upcoming)</div>
+            <div class="rc-foot"><button class="btn block">View</button><span class="kebab">⋮</span></div>
+          </div>
+          <div class="rcard">
+            <div class="rc-head"><div><div class="rc-id">R06</div><div class="rc-meta">6 seats · Floor 2</div></div><span class="badge state">Reserved</span></div>
+            <div class="rc-occ">next 15:30</div>
+            <div class="rc-foot"><button class="btn block">View</button><span class="kebab">⋮</span></div>
+          </div>
+        </div>
+
+        <div class="seclabel">③ Available</div>
+        <div class="board-grid">
+          <div class="rcard">
+            <div class="rc-head"><div><div class="rc-id">R08</div><div class="rc-meta">8 seats · Floor 1</div></div><span class="badge state">Available</span></div>
+            <div class="rc-occ" style="color:var(--muted)">₹1500 / hr</div>
+            <div class="rc-foot"><button class="btn block">Walk-in</button><span class="kebab">⋮</span></div>
+          </div>
+          <div class="rcard">
+            <div class="rc-head"><div><div class="rc-id">R10</div><div class="rc-meta">10 seats · Floor 2</div></div><span class="badge state">Available</span></div>
+            <div class="rc-occ" style="color:var(--muted)">₹2200 / hr</div>
+            <div class="rc-foot"><button class="btn block">Walk-in</button><span class="kebab">⋮</span></div>
+          </div>
+          <div class="rcard">
+            <div class="rc-head"><div><div class="rc-id">R12</div><div class="rc-meta">12 seats · Floor 2</div></div><span class="badge state">Available</span></div>
+            <div class="rc-occ" style="color:var(--muted)">₹2600 / hr</div>
+            <div class="rc-foot"><button class="btn block">Walk-in</button><span class="kebab">⋮</span></div>
+          </div>
+        </div>
+
+        <div class="seclabel">⑤ Under Maintenance</div>
+        <div class="board-grid">
+          <div class="rcard">
+            <div class="rc-head"><div><div class="rc-id">R11 <small>Booth</small></div><div class="rc-meta">4 seats · Floor 2</div></div><span class="badge state">Under Maintenance</span></div>
+            <div class="rc-occ" style="color:var(--muted)">blocked until 14:00 tomorrow · 2 bookings to reroute</div>
+            <div class="rc-foot"><button class="btn block">Clear</button><span class="kebab">⋮</span></div>
+          </div>
+        </div>
+      </div><!-- /board -->
+
+      <!-- ROOM DETAIL DRAWER (opens over the board; shown open for R03) -->
+      <aside class="drawer">
+        <div class="dw-tag">Drawer · opens over the board · S2</div>
+        <div class="dw-head">
+          <div class="dw-title">R03 · Boardroom<small>8 seats · ₹1500/hr · Floor 1</small></div>
+          <span class="dw-x">✕</span>
+        </div>
+        <div class="dw-body">
+          <div class="dw-sec">
+            <div class="h">Current meeting · <span style="color:var(--ink)">In-Use</span></div>
+            <div class="dw-line"><b>Priya Mehta</b> — Member M-1024 · Q Pay ✓</div>
+            <div class="dw-line">14:00–15:00 · elapsed 28m · <b>32m left</b></div>
+          </div>
+          <div class="dw-sec">
+            <div class="h">Activity log (this session)</div>
+            <div class="act"><span class="t">14:26</span>Assistance<span class="ok">— · pending 1m+ ⚠</span></div>
+            <div class="act"><span class="t">14:22</span>Assistance<span class="ok">Krishna · 15s ✓</span></div>
+            <div class="act"><span class="t">14:10</span>Physical menu<span class="ok">Krishna · 37s ✓</span></div>
+          </div>
+          <div class="dw-sec">
+            <div class="h">Next booking</div>
+            <div class="dw-line">15:00 · <b>Sana</b> (Guest) · 6 pax</div>
+          </div>
+        </div>
+        <div class="dw-foot">
+          <button class="btn primary">Accept request</button>
+          <a class="btn" style="text-decoration:none" href="16-extension.html">Extend +30</a>
+          <a class="btn" style="text-decoration:none" href="06-bill-payment.html">Generate Bill</a>
+          <button class="btn">⋮ More</button>
+        </div>
+      </aside>
+    </div><!-- /content -->
+
+    <div class="screenfoot">
+      <span><b>S1 Live Board</b> — the room-first landing surface (FD-12)</span>
+      <span><b>Sort:</b> attention → in-use/reserved → available → maintenance (FD-22)</span>
+      <span><b>One action per card;</b> ⋮ holds Mark Maintenance / New Booking / Reroute</span>
+      <span class="br">BR-S1..S5 · BR-SR4 · BR-END1/END4 · BR-M1..M4</span>
+      <span><a class="home" href="index.html">← all screens</a></span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@font-face {
+	font-family: "Chronicle Display Black";
+	src: url("/chronicle-display-cufonfonts/Chronicle Display Black.otf")
+		format("opentype");
+	font-weight: 900;
+	font-style: normal;
+	font-display: swap;
+}
+
+.font-chronicle {
+	font-family: "Chronicle Display Black", serif;
+}
+
+/* Hide scrollbars globally */
+html, body {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer and Edge */
+}
+
+html::-webkit-scrollbar, body::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, and Opera */
+}
+
+/* Hide scrollbars for main content */
+.main-content {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer and Edge */
+}
+
+.main-content::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, and Opera */
+}
+
+/* Hide scrollbars completely */
+.scrollbar-none {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* Internet Explorer and Edge */
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, and Opera */
+}
+
+.gradient-border {
+	border: 3px solid transparent;
+	border-radius: 50%;
+	border-image: conic-gradient(
+			#f4ca87 0deg,
+			#f9dbb7 72deg,
+			#cda553 144deg,
+			#e3c085 216deg,
+			#b2923b 288deg,
+			#f4ca87 360deg
+		)
+		1;
+}
+
+.luxegenie-gradient {
+	background: linear-gradient(
+		90deg,
+		#f4ca87 0%,
+		#f9dbb7 20%,
+		#cda553 40%,
+		#e3c085 60%,
+		#b2923b 80%,
+		#f4ca87 100%
+	);
+	-webkit-background-clip: text;
+	-webkit-text-fill-color: transparent;
+	background-clip: text;
+	color: transparent;
+}
+
+.goldenBackground {
+	background: conic-gradient(
+		#f4ca87 0deg,
+		#f9dbb7 72deg,
+		#cda553 144deg,
+		#e3c085 216deg,
+		#b2923b 288deg,
+		#f4ca87 360deg
+	);
+}
+
+
+

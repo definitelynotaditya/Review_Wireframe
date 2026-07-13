@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S18 · LUXEGENIE In-Room (guest device)</title>
+<style>
+  :root{
+    --ink:#1f2328;--ink-soft:#4a5058;--muted:#868d95;--faint:#a7adb4;
+    --line:#d3d8dd;--line-soft:#e6e9ed;--paper:#fff;--surface:#f6f7f9;--surface-2:#eceef1;
+    --fill:#e0e3e7;--dark:#2b2f36;--r:6px;--r-lg:8px;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--surface);line-height:1.45;-webkit-font-smoothing:antialiased;font-size:14px}
+  .page{max-width:1100px;margin:0 auto;padding:26px 24px 60px}
+  .head{border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:24px;display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap}
+  .head .t{font-size:20px;font-weight:600}
+  .head .s{font-size:13px;color:var(--muted);margin-top:2px}
+  .head a{margin-left:auto;color:var(--faint);text-decoration:none;font-size:13px}
+  .rowlbl{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);font-weight:600;margin:26px 0 12px}
+  .devices{display:flex;gap:24px;flex-wrap:wrap}
+  .dev{width:264px}
+  .frame{width:264px;height:452px;background:var(--paper);border:2px solid var(--dark);border-radius:20px;padding:12px;display:flex;flex-direction:column;overflow:hidden}
+  .statusbar{display:flex;align-items:center;font-family:var(--mono);font-size:10px;color:var(--muted);padding:2px 4px 8px;border-bottom:1px solid var(--line-soft)}
+  .statusbar .q{margin:0 auto;letter-spacing:.14em;color:var(--ink-soft)}
+  .scr{flex:1;display:flex;flex-direction:column;padding:12px 6px 6px;text-align:center}
+  .cap{font-size:12px;color:var(--muted);margin-top:10px;text-align:center}
+  .cap b{color:var(--ink-soft)}
+  /* B1 reserved */
+  .welcome{font-family:var(--mono);letter-spacing:.14em;font-size:12px;color:var(--muted);margin-top:14px}
+  .name{font-size:22px;font-weight:700;margin:12px 0 4px}
+  .slot{color:var(--ink-soft);font-size:13px}
+  .room{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:6px}
+  .cta{margin-top:auto;background:var(--dark);color:#fff;border-radius:var(--r-lg);padding:16px;font-weight:600;font-size:15px}
+  .cta.ghost{background:var(--paper);color:var(--ink);border:1px solid var(--line)}
+  /* B2 grid */
+  .tile-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:8px}
+  .tile{border:1px solid var(--line);border-radius:var(--r-lg);padding:16px 8px;font-size:13px;font-weight:600;color:var(--ink-soft);background:var(--surface);display:flex;align-items:center;justify-content:center;min-height:66px}
+  .hi{font-size:16px;font-weight:700;margin:2px 0 4px}
+  /* B3 bill */
+  .payrow{display:flex;flex-direction:column;gap:8px;margin-top:10px}
+  .paybtn{border:1px solid var(--line);border-radius:var(--r);padding:11px;font-size:13px;font-weight:600;color:var(--ink-soft);background:var(--paper)}
+  .paybtn.on{background:var(--dark);color:#fff;border-color:var(--dark)}
+  .rate{margin-top:auto;font-size:12px;color:var(--muted)}
+  .stars{font-size:16px;letter-spacing:3px;color:var(--ink-soft);margin-top:4px}
+  /* B4 ending */
+  .warn{border:1px solid var(--dark);border-radius:var(--r);padding:10px;font-size:12.5px;margin-top:14px;background:var(--surface)}
+  .btnstack{display:flex;flex-direction:column;gap:8px;margin-top:auto}
+  .btnstack .b{border:1px solid var(--line);border-radius:var(--r);padding:11px;font-size:13px;font-weight:600;color:var(--ink-soft);background:var(--paper)}
+  .btnstack .b.dark{background:var(--dark);color:#fff;border-color:var(--dark)}
+  .foot{margin-top:34px;border-top:1px solid var(--line-soft);padding-top:14px;font-size:12px;color:var(--muted);display:flex;gap:20px;flex-wrap:wrap}
+  .foot b{color:var(--ink-soft)}.foot .br{font-family:var(--mono);font-size:10.5px}
+  .qr{width:96px;height:96px;margin:14px auto 0;border:1px solid var(--line);border-radius:var(--r);
+    background:
+      repeating-linear-gradient(90deg,var(--ink) 0 6px,transparent 6px 12px),
+      repeating-linear-gradient(0deg,var(--ink) 0 6px,transparent 6px 12px);
+    background-size:12px 12px;opacity:.55}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="head">
+    <div><div class="t">LUXEGENIE — In-Room Guest Device</div>
+      <div class="s">Portrait tablet, pre-configured per room · larger touch targets · high contrast · drives the dashboard events</div></div>
+    <a href="index.html">← all screens</a>
+  </div>
+
+  <div class="rowlbl">The guest journey, left to right</div>
+  <div class="devices">
+    <!-- B1 Reserved -->
+    <div class="dev">
+      <div class="frame">
+        <div class="statusbar"><span>R03</span><span class="q">QUORUM</span><span>14:32 · 82%</span></div>
+        <div class="scr">
+          <div class="welcome">WELCOME TO QUORUM</div>
+          <div class="name">Reserved for<br>Priya Mehta</div>
+          <div class="slot">14:00 – 15:00 (Half-Day)</div>
+          <div class="room">Meeting Room R03</div>
+          <div class="cta">Start Meeting</div>
+        </div>
+      </div>
+      <div class="cap"><b>B1 · Reserved / idle</b><br>Shown ~10 min before start. Tapping Start Meeting → dashboard In-Use.</div>
+    </div>
+
+    <!-- B2 Home -->
+    <div class="dev">
+      <div class="frame">
+        <div class="statusbar"><span>R03</span><span class="q">QUORUM</span><span>14:32 · 82%</span></div>
+        <div class="scr">
+          <div class="hi">Welcome, Priya</div>
+          <div class="tile-grid">
+            <div class="tile">Tap for Wi-Fi</div><div class="tile">Assistance</div>
+            <div class="tile">F&amp;B Order</div><div class="tile">Services</div>
+            <div class="tile">Explore</div><div class="tile">Bill Request</div>
+            <div class="tile">Review on Google</div><div class="tile" style="align-items:flex-end;font-family:var(--mono);font-weight:500;color:var(--muted)">Room R03</div>
+          </div>
+        </div>
+      </div>
+      <div class="cap"><b>B2 · In-meeting home</b><br>Wi-Fi / Explore / Review need no dashboard action.</div>
+    </div>
+
+    <!-- B3 Bill -->
+    <div class="dev">
+      <div class="frame">
+        <div class="statusbar"><span>R03</span><span class="q">QUORUM</span><span>14:58 · 80%</span></div>
+        <div class="scr" style="text-align:left">
+          <div class="hi" style="text-align:center">How would you like to pay?</div>
+          <div class="payrow">
+            <div class="paybtn on">Q Pay <span style="font-weight:400;font-size:11px">(members)</span></div>
+            <div class="paybtn">Scan to Pay</div>
+            <div class="paybtn">Payment Link</div>
+            <div class="paybtn">Card</div>
+            <div class="paybtn">Cash</div>
+          </div>
+          <div class="rate">Your rating matters
+            <div class="stars">Quorum ★★★★★</div>
+            <div class="stars">LUXEGENIE ★★★★★</div>
+          </div>
+        </div>
+      </div>
+      <div class="cap"><b>B3f · Bill Request</b><br>One mode per bill · ratings captured · then staff enters the amount.</div>
+    </div>
+
+    <!-- B4 Ending -->
+    <div class="dev">
+      <div class="frame">
+        <div class="statusbar"><span>R03</span><span class="q">QUORUM</span><span>14:50 · 79%</span></div>
+        <div class="scr">
+          <div class="hi">Your meeting ends soon</div>
+          <div class="warn">10 minutes remaining. Another meeting may be scheduled after yours.</div>
+          <div class="btnstack">
+            <div class="b dark">Extend Meeting</div>
+            <div class="b">End Meeting</div>
+            <div class="b">Home</div>
+          </div>
+        </div>
+      </div>
+      <div class="cap"><b>B4 · Ending Soon</b> — <b>no auto-end</b>. If the guest does nothing, the meeting does <b>not</b> close; the dashboard notifies management.</div>
+    </div>
+  </div>
+
+  <div class="rowlbl">Wi-Fi &amp; ended states</div>
+  <div class="devices">
+    <div class="dev">
+      <div class="frame">
+        <div class="statusbar"><span>R03</span><span class="q">QUORUM</span><span>14:35 · 81%</span></div>
+        <div class="scr">
+          <div class="hi">Wi-Fi</div>
+          <div class="qr"></div>
+          <div class="room" style="margin-top:14px">Scan to connect</div>
+          <div class="slot" style="margin-top:8px">Username: <b>quorum-guest</b><br>Password: <b>meet2026</b></div>
+          <div class="cta ghost">Home</div>
+        </div>
+      </div>
+      <div class="cap"><b>B3a · Wi-Fi</b> — QR + credentials. No dashboard action.</div>
+    </div>
+
+    <div class="dev">
+      <div class="frame">
+        <div class="statusbar"><span>R03</span><span class="q">QUORUM</span><span>15:04 · 78%</span></div>
+        <div class="scr">
+          <div class="hi">Meeting Ended</div>
+          <div class="name" style="font-size:26px">₹4,500</div>
+          <div class="qr"></div>
+          <div class="slot" style="margin-top:12px">Your host is on the way</div>
+          <div class="cta ghost">Select other payment mode</div>
+        </div>
+      </div>
+      <div class="cap"><b>B4 · Meeting Ended</b> — total + per-mode instruction + optional rating.</div>
+    </div>
+
+    <div class="dev">
+      <div class="frame">
+        <div class="statusbar"><span>R03</span><span class="q">QUORUM</span><span>14:40 · 80%</span></div>
+        <div class="scr">
+          <div class="hi">Request sent</div>
+          <div class="slot" style="margin-top:16px">Someone will assist you shortly.</div>
+          <div class="cap" style="margin-top:16px">Any request can be cancelled within <b>3 s</b>; the confirmation auto-returns home after <b>10 s</b>.</div>
+          <div class="cta ghost">Home</div>
+        </div>
+      </div>
+      <div class="cap"><b>B3b · Service request</b> — one pattern for Assistance / IT / Power Bank / Other.</div>
+    </div>
+  </div>
+
+  <div class="foot">
+    <span><b>S18 LUXEGENIE</b> — every device state has a matching dashboard state</span>
+    <span>Guest may <b>End Meeting</b> anytime · meetings never auto-end</span>
+    <span class="br">BR-S1/S2 · BR-SR1..SR5 · BR-F2 · BR-E3 · BR-PAY1..PAY7 · BR-END1</span>
+  </div>
+</div>
+</body>
+</html>

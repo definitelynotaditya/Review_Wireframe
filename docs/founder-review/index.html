@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Woobly Meeting Room Management — Founder Review</title>
+<style>
+  :root{
+    --ink:#1f2328; --ink-soft:#4a5058; --muted:#868d95; --faint:#a7adb4;
+    --line:#d3d8dd; --line-soft:#e6e9ed; --paper:#ffffff; --surface:#f6f7f9;
+    --surface-2:#eceef1; --fill:#e0e3e7; --dark:#2b2f36;
+    --r:6px; --r-lg:8px;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:var(--sans);color:var(--ink);background:var(--surface);
+    line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1060px;margin:0 auto;padding:48px 32px 80px}
+  header.cover{border-bottom:1px solid var(--line);padding-bottom:28px;margin-bottom:32px}
+  .brand{font-family:var(--mono);font-size:13px;letter-spacing:.18em;color:var(--muted);text-transform:uppercase}
+  h1{font-size:30px;letter-spacing:-.01em;margin:10px 0 6px;font-weight:600}
+  .sub{color:var(--ink-soft);font-size:16px;max-width:70ch}
+  .tag{display:inline-block;font-family:var(--mono);font-size:11px;color:var(--muted);
+    border:1px solid var(--line);border-radius:100px;padding:2px 10px;margin-top:14px}
+  h2{font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);
+    margin:40px 0 14px;font-weight:600}
+  p.lead{font-size:15px;color:var(--ink-soft);max-width:78ch}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px}
+  a.screen{display:block;text-decoration:none;color:inherit;background:var(--paper);
+    border:1px solid var(--line);border-radius:var(--r-lg);padding:18px 18px 16px;transition:border-color .15s}
+  a.screen:hover{border-color:var(--ink-soft)}
+  a.screen .n{font-family:var(--mono);font-size:11px;color:var(--faint)}
+  a.screen .t{font-size:15px;font-weight:600;margin:4px 0 4px}
+  a.screen .d{font-size:13px;color:var(--muted);line-height:1.45}
+  .legend{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px 22px}
+  .legend table{border-collapse:collapse;width:100%;font-size:13px}
+  .legend td{padding:5px 10px 5px 0;vertical-align:top;color:var(--ink-soft)}
+  .legend td:first-child{white-space:nowrap;color:var(--ink)}
+  .chip{display:inline-block;font-family:var(--mono);font-size:11px;border:1px solid var(--line);
+    border-radius:4px;padding:1px 7px;background:var(--surface);color:var(--ink-soft)}
+  .flow{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-family:var(--mono);
+    font-size:12px;color:var(--ink-soft);background:var(--paper);border:1px solid var(--line);
+    border-radius:var(--r-lg);padding:16px 18px}
+  .flow b{background:var(--dark);color:#fff;border-radius:4px;padding:2px 8px;font-weight:500;font-family:var(--sans)}
+  .flow span{color:var(--faint)}
+  .note{font-size:12.5px;color:var(--muted);margin-top:26px;border-top:1px solid var(--line-soft);padding-top:16px}
+  ul.plain{margin:8px 0 0;padding-left:18px;color:var(--ink-soft);font-size:14px}
+  ul.plain li{margin:4px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="cover">
+    <div class="brand">Woobly · Meeting Room Management</div>
+    <h1>Founder Review — Product Wireframes</h1>
+    <p class="sub">Low-fidelity, grayscale wireframes of the core operator and guest screens.
+      These communicate <em>layout, hierarchy, workflow, and information architecture</em> —
+      the thinking that precedes high-fidelity Figma, not finished UI.</p>
+    <span class="tag">Grayscale · structure-only · open any file in a browser</span>
+  </header>
+
+  <p class="lead"><strong>Woobly</strong> is the smart-hospitality platform. <strong>Quorum</strong> is the
+  client venue (the guest-facing brand shown on the in-room <strong>LUXEGENIE</strong> tablet).
+  Management books meeting rooms through a guided <strong>calendar-first</strong> flow and runs the day from a
+  <strong>room-first</strong> live board. At the slot time a room shows <em>Reserved</em>; the guest taps
+  <em>Start Meeting</em> on LUXEGENIE → <em>In-Use</em>. Guests request Wi-Fi, assistance, F&amp;B, extensions and
+  the bill; staff service each from the dashboard. <strong>Meetings never end automatically</strong> — a person closes
+  them, then the room returns to <em>Available</em> and the next booking surfaces.</p>
+
+  <h2>The room lifecycle drives everything</h2>
+  <div class="flow">
+    <b>Available</b><span>→</span><b>Reserved</b><span>→</span><b>In-Use</b><span>→</span>
+    <b>Ending&nbsp;Soon</b><span>→</span><b>Billing</b><span>→</span><b>Available</b>
+    <span style="margin-left:8px">·&nbsp;&nbsp;Under&nbsp;Maintenance = interrupt</span>
+  </div>
+
+  <h2>The screens — live operations</h2>
+  <div class="grid">
+    <a class="screen" href="01-live-board.html"><div class="n">S1 · landing</div><div class="t">Meeting Rooms — Live Board</div><div class="d">Room-first operational radar. Attention-sorted room cards; one action per card; room-detail drawer.</div></a>
+    <a class="screen" href="02-dashboard.html"><div class="n">S3</div><div class="t">Operational Dashboard</div><div class="d">Today's status counts, operational attention queue, today's bookings. No revenue analytics here.</div></a>
+    <a class="screen" href="16-extension.html"><div class="n">S11</div><div class="t">Extension Control</div><div class="d">The two extension paths: one-click <em>Extend +30</em>, the blocked-conflict panel, and the guest <em>Seen</em> request.</div></a>
+    <a class="screen" href="14-recent-activities.html"><div class="n">S14</div><div class="t">Recent Activities</div><div class="d">The full chronological audit feed with response times (opened from the bell on any screen).</div></a>
+  </div>
+
+  <h2>The screens — booking</h2>
+  <div class="grid">
+    <a class="screen" href="03-bookings.html"><div class="n">S4</div><div class="t">Bookings — List</div><div class="d">The booking book: search, scope tabs, member/guest cards, recurring &amp; clash-flagged states.</div></a>
+    <a class="screen" href="04-new-booking.html"><div class="n">S5</div><div class="t">New Booking — Guided Flow</div><div class="d">Calendar-first 7-step drawer: Date → Duration → Slot → Seats → Rooms → Details → Confirm.</div></a>
+  </div>
+
+  <h2>The screens — meeting runtime</h2>
+  <div class="grid">
+    <a class="screen" href="06-bill-payment.html"><div class="n">S9</div><div class="t">Bill / Payment Panel</div><div class="d">Enter POS amount → drive the LUXEGENIE display → confirm payment → close the meeting.</div></a>
+    <a class="screen" href="07-fnb-order-review.html"><div class="n">S10</div><div class="t">F&amp;B Order Review</div><div class="d">Review, edit and <em>punch</em> a placed order. Manual — no kitchen automation in V1.</div></a>
+  </div>
+
+  <h2>The screens — configuration &amp; records</h2>
+  <div class="grid">
+    <a class="screen" href="05-manage-rooms.html"><div class="n">S6·S7</div><div class="t">Manage Rooms + Room Editor</div><div class="d">Room CRUD, pricing bands, and the maintenance / reroute modal (24h block).</div></a>
+    <a class="screen" href="13-fnb-menu.html"><div class="n">S8</div><div class="t">F&amp;B Menu</div><div class="d">The separate curated meeting-room F&amp;B catalogue: items, categories, veg/non-veg, add-item modal.</div></a>
+    <a class="screen" href="08-members.html"><div class="n">S12</div><div class="t">Members / Guests + CSV Import</div><div class="d">Internal member database, CSV onboarding with validation, derived guests.</div></a>
+    <a class="screen" href="12-users.html"><div class="n">S15</div><div class="t">Users</div><div class="d">Staff accounts: search, filters, add/edit modal, all states. Roles are labels only — no permission gating.</div></a>
+    <a class="screen" href="10-settings.html"><div class="n">S17</div><div class="t">Settings</div><div class="d">Payment modes, cancellation &amp; extension policy, reminders, pricing policy, Wi-Fi, events.</div></a>
+    <a class="screen" href="09-view-history.html"><div class="n">S13</div><div class="t">View History</div><div class="d">Secondary analytics — revenue, ratings, durations, payment-mode split. Kept off the live path.</div></a>
+  </div>
+
+  <h2>The screens — devices</h2>
+  <div class="grid">
+    <a class="screen" href="15-luxegenie-devices.html"><div class="n">S16</div><div class="t">LUXEGENIE Devices</div><div class="d">Device-fleet management: battery, room assignment, reboot/shutdown; links to each room's in-room screens.</div></a>
+    <a class="screen" href="11-luxegenie.html"><div class="n">S18 · guest device</div><div class="t">LUXEGENIE In-Room</div><div class="d">The guest tablet: reserved screen, in-meeting home, F&amp;B, bill request, ending-soon (no auto-end).</div></a>
+  </div>
+
+  <h2>How to read these wireframes</h2>
+  <div class="legend">
+    <table>
+      <tr><td><span class="chip">{ State }</span></td><td>A visible state token. Status is shown by <em>text</em>, never colour alone (colour arrives in Figma).</td></tr>
+      <tr><td><span class="chip">[ Button ]</span></td><td>A control. A <strong>dark-filled</strong> button is the single primary action for that surface/state.</td></tr>
+      <tr><td><span class="chip">⌕ Search</span></td><td>Search input, always top-left of a list surface.</td></tr>
+      <tr><td><span class="chip">( Tab )</span></td><td>Segmented filter tab; the filled one is active.</td></tr>
+      <tr><td><span class="chip">⋮</span></td><td>Overflow menu holding secondary / management-authority actions.</td></tr>
+      <tr><td><span class="chip">Drawer / Modal</span></td><td>A right-side drawer or centered modal overlays the surface behind it — it never navigates away.</td></tr>
+    </table>
+  </div>
+
+  <h2>What each screen is designed to prove</h2>
+  <ul class="plain">
+    <li><strong>One coherent system</strong> — identical shell, sidebar, spacing, type hierarchy, cards, drawers and buttons across every screen.</li>
+    <li><strong>Reduce staff effort</strong> — one obvious action per state; attention rises to the top; the engine matches rooms so staff never scan a list; details auto-fill.</li>
+    <li><strong>Room-first &amp; calendar-first</strong> — the live board is the landing surface; booking is a guided constraint→availability sequence.</li>
+    <li><strong>Every state is drawn</strong> — default, loading, empty, error, escalation, and overlays are represented, not implied.</li>
+  </ul>
+
+  <p class="note">Founder-review package · grayscale low-fidelity · pure HTML + embedded CSS, no libraries.
+  Source of truth: <code>docs/</code> (DESIGN.md, Business_Rules, Founder_Decision_Log, Wireframe_Specification).
+  These pages are the immediate predecessor to the production Figma reference file.</p>
+</div>
+</body>
+</html>

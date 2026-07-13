@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>S3 · Operational Dashboard</title>
+<style>
+  :root{
+    --ink:#1f2328;--ink-soft:#4a5058;--muted:#868d95;--faint:#a7adb4;
+    --line:#d3d8dd;--line-soft:#e6e9ed;--paper:#fff;--surface:#f6f7f9;--surface-2:#eceef1;
+    --fill:#e0e3e7;--dark:#2b2f36;--r:6px;--r-lg:8px;
+    --sans:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%}
+  body{font-family:var(--sans);color:var(--ink);background:var(--surface);line-height:1.45;-webkit-font-smoothing:antialiased;font-size:14px}
+  .app{display:grid;grid-template-columns:232px 1fr;height:100vh;min-height:640px}
+  .sidebar{background:var(--paper);border-right:1px solid var(--line);display:flex;flex-direction:column;padding:16px 12px}
+  .s-brand{font-family:var(--mono);font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);padding:6px 10px 2px}
+  .s-brand small{display:block;font-size:10px;letter-spacing:.12em;color:var(--faint);margin-top:3px}
+  .nav{margin-top:18px;display:flex;flex-direction:column;gap:1px;flex:1}
+  .nav a{display:flex;align-items:center;gap:9px;text-decoration:none;color:var(--ink-soft);font-size:13.5px;padding:8px 10px;border-radius:var(--r);border-left:2px solid transparent}
+  .nav a .i{width:15px;text-align:center;color:var(--faint);font-size:13px}
+  .nav a:hover{background:var(--surface)}
+  .nav a.active{background:var(--surface-2);color:var(--ink);font-weight:600;border-left-color:var(--dark)}
+  .nav a.active .i{color:var(--ink)}
+  .s-profile{border-top:1px solid var(--line-soft);padding:12px 10px 4px;display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--ink-soft)}
+  .avatar{width:26px;height:26px;border-radius:100px;background:var(--fill);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--ink-soft)}
+  .s-profile .lo{margin-left:auto;color:var(--faint)}
+  .main{display:flex;flex-direction:column;min-width:0;height:100vh}
+  .topbar{height:60px;flex:none;border-bottom:1px solid var(--line);background:var(--paper);display:flex;align-items:center;padding:0 22px;gap:16px}
+  .tb-title{font-size:17px;font-weight:600;letter-spacing:-.01em}
+  .tb-sub{font-size:12.5px;color:var(--muted);margin-top:1px}
+  .tb-right{margin-left:auto;display:flex;align-items:center;gap:14px;color:var(--muted)}
+  .icon-btn{position:relative;width:30px;height:30px;border:1px solid var(--line);border-radius:var(--r);background:var(--paper);display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--ink-soft)}
+  .dot{position:absolute;top:-6px;right:-6px;min-width:16px;height:16px;background:var(--dark);color:#fff;border-radius:100px;font-size:10px;display:flex;align-items:center;justify-content:center;padding:0 4px;font-family:var(--mono)}
+  .content{flex:1;overflow:auto;padding:20px 22px 40px}
+  .btn{font-size:12.5px;border:1px solid var(--line);background:var(--paper);color:var(--ink);border-radius:var(--r);padding:6px 12px;white-space:nowrap}
+  .btn.primary{background:var(--dark);color:#fff;border-color:var(--dark);font-weight:500}
+  .badge{font-family:var(--mono);font-size:10.5px;border:1px solid var(--line);border-radius:4px;padding:2px 7px;color:var(--ink-soft);background:var(--surface);white-space:nowrap}
+  .badge.warn{border-color:var(--dark);color:#fff;background:var(--dark)}
+  .seclabel{display:flex;align-items:center;gap:8px;margin:26px 0 12px;font-size:11px;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:600}
+  .seclabel::after{content:"";flex:1;height:1px;background:var(--line-soft)}
+  .row-top{display:flex;align-items:center;justify-content:space-between}
+  /* KPI */
+  .kpis{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+  .kpi{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:14px 15px}
+  .kpi .l{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);font-weight:600}
+  .kpi .v{font-size:26px;font-weight:700;margin-top:6px;font-variant-numeric:tabular-nums}
+  /* attention */
+  .panel{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden}
+  .arow{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line-soft);font-size:13.5px}
+  .arow:last-child{border-bottom:0}
+  .arow .rm{font-weight:700;width:44px}
+  .arow .desc{color:var(--ink-soft)}
+  .arow .act{margin-left:auto}
+  .arow .flag{color:var(--ink);font-family:var(--mono);font-size:11px}
+  .bkstrip{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+  .bkcard{background:var(--paper);border:1px solid var(--line);border-radius:var(--r-lg);padding:12px 14px;font-size:13px}
+  .bkcard .tm{font-family:var(--mono);font-size:12px;color:var(--muted)}
+  .bkcard .nm{font-weight:600;margin-top:3px}
+  .bkcard .st{font-size:11.5px;color:var(--muted);margin-top:2px}
+  .screenfoot{background:var(--surface-2);border-top:1px solid var(--line);padding:10px 22px;font-size:11.5px;color:var(--muted);display:flex;gap:18px;flex-wrap:wrap;flex:none}
+  .screenfoot b{color:var(--ink-soft);font-weight:600}.screenfoot .br{font-family:var(--mono);font-size:10.5px}
+  a.home{color:var(--faint);text-decoration:none}
+  @media(max-width:900px){.app{grid-template-columns:60px 1fr}.nav a span.t,.s-brand small,.s-profile .txt{display:none}.kpis{grid-template-columns:repeat(3,1fr)}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="s-brand">◇ Woobly<small>Manager Dashboard</small></div>
+    <nav class="nav">
+      <a href="01-live-board.html"><span class="i">▤</span><span class="t">Meeting Rooms</span></a>
+      <a class="active" href="02-dashboard.html"><span class="i">◔</span><span class="t">Dashboard</span></a>
+      <a href="03-bookings.html"><span class="i">▦</span><span class="t">Bookings</span></a>
+      <a href="05-manage-rooms.html"><span class="i">▥</span><span class="t">Manage Rooms</span></a>
+      <a href="13-fnb-menu.html"><span class="i">◑</span><span class="t">F&amp;B Menu</span></a>
+      <a href="08-members.html"><span class="i">◎</span><span class="t">Members</span></a>
+      <a href="15-luxegenie-devices.html"><span class="i">▭</span><span class="t">LUXEGENIE</span></a>
+      <a href="12-users.html"><span class="i">◍</span><span class="t">Users</span></a>
+      <a href="10-settings.html"><span class="i">⚙</span><span class="t">Settings</span></a>
+    </nav>
+    <div class="s-profile"><span class="avatar">MG</span><span class="txt">Manager<br><span style="color:var(--faint)">ops@quorum</span></span><span class="lo">⏻</span></div>
+  </aside>
+  <div class="main">
+    <div class="topbar">
+      <div><div class="tb-title">Dashboard</div><div class="tb-sub">Today's operations</div></div>
+      <div class="tb-right"><span class="icon-btn">☀</span><a class="icon-btn" href="14-recent-activities.html" style="text-decoration:none" title="Recent Activities">🔔<span class="dot">3</span></a><span class="avatar">MG</span></div>
+    </div>
+    <div class="content">
+      <div class="row-top">
+        <div class="seclabel" style="margin-top:0">Today's status</div>
+        <a class="btn" href="09-view-history.html" style="text-decoration:none">View History →</a>
+      </div>
+      <div class="kpis">
+        <div class="kpi"><div class="l">Available</div><div class="v">5</div></div>
+        <div class="kpi"><div class="l">In-Use</div><div class="v">4</div></div>
+        <div class="kpi"><div class="l">Ending Soon</div><div class="v">1</div></div>
+        <div class="kpi"><div class="l">Billing</div><div class="v">1</div></div>
+        <div class="kpi"><div class="l">Reserved</div><div class="v">3</div></div>
+        <div class="kpi"><div class="l">Maintenance</div><div class="v">1</div></div>
+      </div>
+
+      <div class="seclabel">Operational attention</div>
+      <div class="panel">
+        <div class="arow"><span class="flag">⚠</span><span class="rm">R03</span><span class="desc">Assistance · waiting 1m+</span><span class="act"><a class="btn primary" href="01-live-board.html" style="text-decoration:none">Open</a></span></div>
+        <div class="arow"><span class="flag" style="visibility:hidden">·</span><span class="rm">R01</span><span class="desc">F&amp;B Order · placed</span><span class="act"><a class="btn" href="07-fnb-order-review.html" style="text-decoration:none">View Order</a></span></div>
+        <div class="arow"><span class="flag" style="visibility:hidden">·</span><span class="rm">R09</span><span class="desc">Ended — unbilled</span><span class="act"><a class="btn" href="06-bill-payment.html" style="text-decoration:none">End / Bill</a></span></div>
+      </div>
+
+      <div class="seclabel">Today's bookings <a href="03-bookings.html" style="margin-left:auto;font-size:11px;font-weight:500;color:var(--ink-soft);text-decoration:none;letter-spacing:0;text-transform:none">All bookings →</a></div>
+      <div class="bkstrip">
+        <div class="bkcard"><div class="tm">13:30 · R01</div><div class="nm">Anil</div><div class="st">In-Use</div></div>
+        <div class="bkcard"><div class="tm">14:00 · R03</div><div class="nm">Priya</div><div class="st">In-Use</div></div>
+        <div class="bkcard"><div class="tm">15:00 · R04</div><div class="nm">Sana</div><div class="st">next</div></div>
+        <div class="bkcard"><div class="tm">15:30 · R06</div><div class="nm">Dev</div><div class="st">upcoming</div></div>
+        <a class="bkcard" href="04-new-booking.html" style="border-style:dashed;color:var(--muted);display:flex;align-items:center;justify-content:center;text-decoration:none">＋ New Booking</a>
+      </div>
+    </div>
+    <div class="screenfoot">
+      <span><b>S3 Dashboard</b> — operational-first, <b>today only</b> (FD-20)</span>
+      <span>Revenue / ratings analytics live in <b>View History</b>, never here</span>
+      <span>Attention rows deep-link to the room / bill (reduce clicks)</span>
+      <span class="br">FD-20 · BR-END · BR-SR4</span>
+      <span><a class="home" href="index.html">← all screens</a></span>
+    </div>
+  </div>
+</div>
+</body>
+</html>
